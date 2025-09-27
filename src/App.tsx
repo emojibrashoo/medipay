@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { SuiWalletProvider } from "@/contexts/SuiWalletContext";
 
 // Pages
 import Landing from "./pages/Landing";
@@ -13,6 +14,7 @@ import Register from "./pages/Register";
 import TransactionExplorer from "./pages/TransactionExplorer";
 import PatientDashboard from "./pages/patient/PatientDashboard";
 import PatientInvoices from "./pages/patient/PatientInvoices";
+import PatientTransactions from "./pages/patient/PatientTransactions";
 import DoctorDashboard from "./pages/doctor/DoctorDashboard";
 import NewDoctorDashboard from "./pages/doctor/NewDoctorDashboard";
 import InstitutionDashboard from "./pages/institution/InstitutionDashboard";
@@ -24,10 +26,11 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
+      <SuiWalletProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
@@ -42,7 +45,7 @@ const App = () => (
           }>
             <Route index element={<PatientDashboard />} />
             <Route path="invoices" element={<PatientInvoices />} />
-            <Route path="transactions" element={<div>Patient Transactions</div>} />
+            <Route path="transactions" element={<PatientTransactions />} />
             <Route path="profile" element={<div>Patient Profile</div>} />
             <Route path="settings" element={<div>Patient Settings</div>} />
           </Route>
@@ -98,6 +101,7 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
+      </SuiWalletProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

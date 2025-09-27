@@ -24,6 +24,7 @@ import {
   Pill,
   Clipboard
 } from "lucide-react";
+import { CreateMedicalRecordTransaction, CreatePrescriptionTransaction } from "@/components/sui/BlockchainTransaction";
 
 interface PrescriptionForm {
   medicationName: string;
@@ -379,6 +380,21 @@ export default function NewDoctorDashboard() {
                 Cancel
               </Button>
             </div>
+
+            {/* Blockchain Transaction Component */}
+            {noteForm.patientId && noteForm.diagnosis && noteForm.treatment && (
+              <div className="mt-6">
+                <CreateMedicalRecordTransaction
+                  patientId={noteForm.patientId}
+                  doctorId={user?.id || ''}
+                  institutionId="2" // Default institution ID
+                  diagnosis={noteForm.diagnosis}
+                  treatment={noteForm.treatment}
+                  notes={noteForm.notes}
+                  visitDate={noteForm.visitDate}
+                />
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
@@ -481,6 +497,22 @@ export default function NewDoctorDashboard() {
                 Cancel
               </Button>
             </div>
+
+            {/* Blockchain Transaction Component */}
+            {prescriptionForm.medicationName && prescriptionForm.dosage && prescriptionForm.frequency && (
+              <div className="mt-6">
+                <CreatePrescriptionTransaction
+                  patientId={noteForm.patientId || ''}
+                  doctorId={user?.id || ''}
+                  medicationName={prescriptionForm.medicationName}
+                  dosage={prescriptionForm.dosage}
+                  frequency={prescriptionForm.frequency}
+                  duration={prescriptionForm.duration}
+                  quantity={prescriptionForm.quantity}
+                  instructions={prescriptionForm.instructions}
+                />
+              </div>
+            )}
           </CardContent>
         </Card>
       )}

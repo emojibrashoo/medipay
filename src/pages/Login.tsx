@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Shield, Users, Activity, Wallet, Home, Building2 } from "lucide-react";
+import SuiWalletButton from "@/components/sui/SuiWalletButton";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -142,15 +143,19 @@ export default function Login() {
                 </div>
               </div>
 
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full mt-4 transition-smooth hover:scale-105"
-                onClick={handleCryptoLogin}
-              >
-                <Wallet className="w-4 h-4 mr-2" />
-                Connect Crypto Wallet
-              </Button>
+              <div className="mt-4 space-y-3">
+                <SuiWalletButton />
+                
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full transition-smooth hover:scale-105"
+                  onClick={handleCryptoLogin}
+                >
+                  <Wallet className="w-4 h-4 mr-2" />
+                  Other Crypto Wallet
+                </Button>
+              </div>
             </div>
 
             <div className="mt-6 text-center space-y-2">
