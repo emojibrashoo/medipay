@@ -120,20 +120,20 @@ export default function Landing() {
               <Button
                 size="lg"
                 className="hero-gradient text-white font-semibold px-8 py-6 text-lg transition-smooth hover:scale-105 medical-shadow"
-                onClick={() => navigate('/login?role=patient')}
+                onClick={() => navigate('/register')}
               >
                 <Users className="w-5 h-5 mr-2" />
-                Login as Patient
+                Get started
               </Button>
               
               <Button
                 size="lg"
                 variant="outline"
                 className="border-primary text-primary hover:bg-primary hover:text-white font-semibold px-8 py-6 text-lg transition-smooth hover:scale-105"
-                onClick={() => navigate('/login?role=doctor')}
+                onClick={() => navigate('/login')}
               >
                 <Activity className="w-5 h-5 mr-2" />
-                Login as Doctor
+                Go to Dashboard
               </Button>
             </div>
           </div>

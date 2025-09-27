@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Users, Activity, UserPlus, Home } from "lucide-react";
+import { Shield, Users, Activity, UserPlus, Home, Building2 } from "lucide-react";
 import { ConnectWalletButton } from "@/components/ConnectWalletButton";
 
 export default function Register() {
@@ -113,6 +113,18 @@ export default function Register() {
                       <div className="flex items-center gap-2">
                         <Users className="w-4 h-4" />
                         Patient
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="institution">
+                      <div className="flex items-center gap-2">
+                        <Building2 className="w-4 h-4" />
+                        Healthcare Institution
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="insurance">
+                      <div className="flex items-center gap-2">
+                        <Shield className="w-4 h-4" />
+                        Insurance Company
                       </div>
                     </SelectItem>
                     <SelectItem value="doctor">
