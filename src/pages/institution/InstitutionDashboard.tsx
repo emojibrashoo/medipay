@@ -4,11 +4,11 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { mockInvoices, mockInsurancePayments, mockTransactions, mockInstitutionUsers, mockProducts } from "@/data/mockData";
 import { useAuthStore } from "@/store/authStore";
 import { useNavigate } from "react-router-dom";
-import { 
-  Building2, 
-  FileText, 
-  Activity, 
-  TrendingUp, 
+import {
+  Building2,
+  FileText,
+  Activity,
+  TrendingUp,
   Calendar,
   DollarSign,
   Users,
@@ -19,6 +19,7 @@ import {
   UserCog,
   Settings
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export default function InstitutionDashboard() {
   const { user } = useAuthStore();
@@ -27,7 +28,7 @@ export default function InstitutionDashboard() {
   // Filter data for current institution
   const institutionInvoices = mockInvoices.filter(invoice => invoice.institutionId === user?.id);
   const institutionPayments = mockInsurancePayments.filter(payment => payment.institutionId === user?.id);
-  const institutionTransactions = mockTransactions.filter(transaction => 
+  const institutionTransactions = mockTransactions.filter(transaction =>
     institutionInvoices.some(invoice => invoice.id === transaction.invoiceId)
   );
   const institutionUsers = mockInstitutionUsers.filter(u => u.institutionId === user?.id);
@@ -45,15 +46,15 @@ export default function InstitutionDashboard() {
   const totalRevenue = institutionInvoices
     .filter(invoice => invoice.status === 'paid' || invoice.status === 'confirmed')
     .reduce((sum, invoice) => sum + invoice.amount, 0);
-  
+
   const insurancePayments = institutionPayments
     .filter(payment => payment.status === 'paid')
     .reduce((sum, payment) => sum + payment.amount, 0);
-  
+
   const pendingRevenue = institutionInvoices
     .filter(invoice => invoice.status === 'pending')
     .reduce((sum, invoice) => sum + invoice.amount, 0);
-  
+
   const totalPatients = new Set(institutionInvoices.map(invoice => invoice.patientId)).size;
 
   const stats = [
@@ -138,7 +139,7 @@ export default function InstitutionDashboard() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {canViewTransactions && (
-              <Button 
+              <Button
                 className="h-auto p-6 flex-col gap-3 bg-gradient-medical hover:scale-105 transition-smooth"
                 onClick={() => navigate('/institution/transactions')}
               >
@@ -149,9 +150,9 @@ export default function InstitutionDashboard() {
                 </div>
               </Button>
             )}
-            
+
             {canViewTransactions && (
-              <Button 
+              <Button
                 variant="outline"
                 className="h-auto p-6 flex-col gap-3 hover:scale-105 transition-smooth"
                 onClick={() => navigate('/institution/insurance-payments')}
@@ -163,9 +164,9 @@ export default function InstitutionDashboard() {
                 </div>
               </Button>
             )}
-            
+
             {canViewProducts && (
-              <Button 
+              <Button
                 variant="outline"
                 className="h-auto p-6 flex-col gap-3 hover:scale-105 transition-smooth"
                 onClick={() => navigate('/institution/products')}
@@ -177,9 +178,9 @@ export default function InstitutionDashboard() {
                 </div>
               </Button>
             )}
-            
+
             {isAdmin && (
-              <Button 
+              <Button
                 variant="outline"
                 className="h-auto p-6 flex-col gap-3 hover:scale-105 transition-smooth"
                 onClick={() => navigate('/institution/users')}
@@ -191,9 +192,9 @@ export default function InstitutionDashboard() {
                 </div>
               </Button>
             )}
-            
+
             {canViewReports && (
-              <Button 
+              <Button
                 variant="outline"
                 className="h-auto p-6 flex-col gap-3 hover:scale-105 transition-smooth"
                 onClick={() => navigate('/institution/reports')}
@@ -223,7 +224,7 @@ export default function InstitutionDashboard() {
                   Latest patient payments and insurance claims
                 </CardDescription>
               </div>
-              <Button 
+              <Button
                 variant="outline"
                 onClick={() => navigate('/institution/transactions')}
               >
@@ -282,7 +283,7 @@ export default function InstitutionDashboard() {
                   Your institution's service offerings
                 </CardDescription>
               </div>
-              <Button 
+              <Button
                 variant="outline"
                 onClick={() => navigate('/institution/products')}
               >
@@ -360,7 +361,7 @@ export default function InstitutionDashboard() {
                 <div className="flex justify-between items-center p-3 rounded-lg bg-paid/10">
                   <span className="font-medium">Success Rate</span>
                   <span className="font-bold text-paid">
-                    {institutionPayments.length > 0 ? 
+                    {institutionPayments.length > 0 ?
                       Math.round((institutionPayments.filter(p => p.status === 'paid').length / institutionPayments.length) * 100) : 0}%
                   </span>
                 </div>

@@ -133,12 +133,12 @@ export default function Login() {
             </form>
 
             <div className="mt-6 flex flex-col items-center gap-4 w-full">
-              <div className="relative">
+              <div className="relative w-full">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-border" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="bg-card px-4 text-muted-foreground">Or continue with</span>
+                  <span className="px-4 bg-gradient-to-br from-background via-accent/30 to-primary/5 text-muted-foreground">Or continue with</span>
                 </div>
               </div>
 
