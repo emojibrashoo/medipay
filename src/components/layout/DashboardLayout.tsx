@@ -14,7 +14,14 @@ import {
   Settings,
   BarChart3,
   PlusCircle,
-  Search
+  Search,
+  Building2,
+  Shield,
+  Stethoscope,
+  Clipboard,
+  Pill,
+  Package,
+  UserCog
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -44,7 +51,9 @@ export default function DashboardLayout() {
   ];
 
   const doctorNavItems: NavItem[] = [
-    { title: "Dashboard", href: "/doctor", icon: Activity },
+    { title: "Dashboard", href: "/doctor", icon: Stethoscope },
+    { title: "Medical Records", href: "/doctor/records", icon: Clipboard },
+    { title: "Prescriptions", href: "/doctor/prescriptions", icon: Pill },
     { title: "Create Invoice", href: "/doctor/create", icon: PlusCircle },
     { title: "Invoices", href: "/doctor/invoices", icon: FileText },
     { title: "Reports", href: "/doctor/reports", icon: BarChart3 },
@@ -52,7 +61,40 @@ export default function DashboardLayout() {
     { title: "Settings", href: "/doctor/settings", icon: Settings },
   ];
 
-  const navItems = user?.role === 'doctor' ? doctorNavItems : patientNavItems;
+  const institutionNavItems: NavItem[] = [
+    { title: "Dashboard", href: "/institution", icon: Building2 },
+    { title: "Transactions", href: "/institution/transactions", icon: CreditCard },
+    { title: "Insurance Payments", href: "/institution/insurance-payments", icon: Shield },
+    { title: "Products", href: "/institution/products", icon: Package },
+    { title: "Users", href: "/institution/users", icon: UserCog },
+    { title: "Reports", href: "/institution/reports", icon: BarChart3 },
+    { title: "Profile", href: "/institution/profile", icon: User },
+    { title: "Settings", href: "/institution/settings", icon: Settings },
+  ];
+
+  const insuranceNavItems: NavItem[] = [
+    { title: "Dashboard", href: "/insurance", icon: Shield },
+    { title: "Claims", href: "/insurance/claims", icon: FileText },
+    { title: "Transactions", href: "/insurance/transactions", icon: CreditCard },
+    { title: "Reports", href: "/insurance/reports", icon: BarChart3 },
+    { title: "Profile", href: "/insurance/profile", icon: User },
+    { title: "Settings", href: "/insurance/settings", icon: Settings },
+  ];
+
+  const getNavItems = () => {
+    switch (user?.role) {
+      case 'doctor':
+        return doctorNavItems;
+      case 'institution':
+        return institutionNavItems;
+      case 'insurance':
+        return insuranceNavItems;
+      default:
+        return patientNavItems;
+    }
+  };
+
+  const navItems = getNavItems();
 
   const NavContent = ({ mobile = false }: { mobile?: boolean }) => (
     <div className="flex flex-col h-full">

@@ -7,46 +7,41 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Users, Activity, Wallet, Home } from "lucide-react";
+import { Shield, Users, Activity, Wallet, Home, Building2 } from "lucide-react";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<UserRole>("patient");
   const [isLoading, setIsLoading] = useState(false);
   
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const { login } = useAuthStore();
   const { toast } = useToast();
-
-  // Set role from URL params if provided
-  useState(() => {
-    const roleParam = searchParams.get('role');
-    if (roleParam === 'doctor' || roleParam === 'patient') {
-      setRole(roleParam);
-    }
-  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const success = await login(email, password, role);
+      const success = await login(email, password);
       
       if (success) {
+        // Get the user from the auth store to determine their role
+        const { user } = useAuthStore.getState();
+        const redirectPath = user?.role === 'doctor' ? '/doctor' : 
+                            user?.role === 'institution' ? '/institution' :
+                            user?.role === 'insurance' ? '/insurance' : '/patient';
+        
         toast({
           title: "Welcome back!",
           description: "You have successfully logged in.",
         });
         
-        // Redirect to appropriate dashboard
-        navigate(role === 'doctor' ? '/doctor' : '/patient');
+        navigate(redirectPath);
       } else {
         toast({
           title: "Login failed",
-          description: "Invalid credentials. Use demo@demo.com with password: demo123",
+          description: "Invalid credentials. Please check your email and password.",
           variant: "destructive",
         });
       }
@@ -95,11 +90,7 @@ export default function Login() {
         <Card className="medical-card">
           <CardHeader className="text-center">
             <CardTitle className="flex items-center justify-center gap-2">
-              {role === 'doctor' ? (
-                <><Activity className="w-5 h-5" /> Doctor Login</>
-              ) : (
-                <><Users className="w-5 h-5" /> Patient Login</>
-              )}
+                <><Users className="w-5 h-5" /> User Login</>
             </CardTitle>
             <CardDescription>
               Enter your credentials to access your dashboard
@@ -108,29 +99,6 @@ export default function Login() {
           
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="role">Login as</Label>
-                <Select value={role} onValueChange={(value: UserRole) => setRole(value)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="patient">
-                      <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4" />
-                        Patient
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="doctor">
-                      <div className="flex items-center gap-2">
-                        <Activity className="w-4 h-4" />
-                        Doctor
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input

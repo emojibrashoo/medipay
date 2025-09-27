@@ -15,7 +15,9 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
 
   if (allowedRoles && user && !allowedRoles.includes(user.role)) {
     // Redirect to appropriate dashboard based on user role
-    const redirectPath = user.role === 'doctor' ? '/doctor' : '/patient';
+    const redirectPath = user.role === 'doctor' ? '/doctor' : 
+                        user.role === 'institution' ? '/institution' :
+                        user.role === 'insurance' ? '/insurance' : '/patient';
     return <Navigate to={redirectPath} replace />;
   }
 
