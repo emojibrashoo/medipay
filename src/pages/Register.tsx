@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Shield, Users, Activity, UserPlus, Home } from "lucide-react";
+import { ConnectWalletButton } from "@/components/ConnectWalletButton";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -16,14 +17,14 @@ export default function Register() {
   const [name, setName] = useState("");
   const [role, setRole] = useState<UserRole>("patient");
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const navigate = useNavigate();
   const { register } = useAuthStore();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (password !== confirmPassword) {
       toast({
         title: "Password mismatch",
@@ -37,13 +38,13 @@ export default function Register() {
 
     try {
       const success = await register(email, password, name, role);
-      
+
       if (success) {
         toast({
           title: "Account created!",
           description: "Welcome to MediPay. Your account has been created successfully.",
         });
-        
+
         // Redirect to appropriate dashboard
         navigate(role === 'doctor' ? '/doctor' : '/patient');
       } else {
@@ -76,7 +77,7 @@ export default function Register() {
         <Home className="w-4 h-4" />
         Home
       </Button>
-      
+
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-medical mb-4">
@@ -98,7 +99,7 @@ export default function Register() {
               Choose your role and set up your secure account
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
@@ -180,6 +181,19 @@ export default function Register() {
                 {isLoading ? "Creating Account..." : "Create Account"}
               </Button>
             </form>
+
+            <div className="mt-6 flex flex-col items-center">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="bg-card px-4 text-muted-foreground">Or continue with</span>
+                </div>
+              </div>
+
+              <ConnectWalletButton />
+            </div>
 
             <div className="mt-6 text-center">
               <div className="text-sm text-muted-foreground">

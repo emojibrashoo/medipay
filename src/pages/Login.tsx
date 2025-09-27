@@ -8,13 +8,14 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Shield, Users, Activity, Wallet, Home } from "lucide-react";
+import { ConnectWalletButton } from "@/components/ConnectWalletButton";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<UserRole>("patient");
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { login } = useAuthStore();
@@ -34,13 +35,13 @@ export default function Login() {
 
     try {
       const success = await login(email, password, role);
-      
+
       if (success) {
         toast({
           title: "Welcome back!",
           description: "You have successfully logged in.",
         });
-        
+
         // Redirect to appropriate dashboard
         navigate(role === 'doctor' ? '/doctor' : '/patient');
       } else {
@@ -80,7 +81,7 @@ export default function Login() {
         <Home className="w-4 h-4" />
         Home
       </Button>
-      
+
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-medical mb-4">
@@ -105,7 +106,7 @@ export default function Login() {
               Enter your credentials to access your dashboard
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
@@ -164,7 +165,7 @@ export default function Login() {
               </Button>
             </form>
 
-            <div className="mt-6">
+            <div className="mt-6 flex flex-col items-center gap-4 w-full">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-border" />
@@ -174,25 +175,10 @@ export default function Login() {
                 </div>
               </div>
 
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full mt-4 transition-smooth hover:scale-105"
-                onClick={handleCryptoLogin}
-              >
-                <Wallet className="w-4 h-4 mr-2" />
-                Connect Crypto Wallet
-              </Button>
+              <ConnectWalletButton />
             </div>
 
             <div className="mt-6 text-center space-y-2">
-              <Link
-                to="/forgot-password"
-                className="text-primary hover:text-primary-hover text-sm transition-smooth"
-              >
-                Forgot your password?
-              </Link>
-              
               <div className="text-sm text-muted-foreground">
                 Don't have an account?{" "}
                 <Link
