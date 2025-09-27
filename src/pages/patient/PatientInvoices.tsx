@@ -15,6 +15,7 @@ import {
   Filter
 } from "lucide-react";
 import { Invoice } from "@/data/mockData";
+import { PayInvoiceTransaction } from "@/components/sui/BlockchainTransaction";
 
 export default function PatientInvoices() {
   const { user } = useAuthStore();
@@ -150,6 +151,16 @@ export default function PatientInvoices() {
                         </Button>
                       )}
                     </div>
+
+                    {/* Blockchain Payment Component */}
+                    {invoice.status === 'pending' && (
+                      <div className="mt-4 w-full">
+                        <PayInvoiceTransaction
+                          invoiceId={invoice.id}
+                          amount={invoice.amount}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardContent>
