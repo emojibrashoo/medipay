@@ -2,24 +2,20 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { Badge } from "@/components/ui/badge";
-import { mockTransactions, mockInvoices } from "@/data/mockData";
+import { mockTransactions } from "@/data/mockData";
 import { useAuthStore } from "@/store/authStore";
 import { useToast } from "@/hooks/use-toast";
 import { 
   CreditCard, 
   Search, 
-  Filter, 
-  Download, 
+  Filter,
   Calendar,
-  DollarSign,
-  Clock,
+  ExternalLink,
+  Copy,
   CheckCircle,
-  AlertCircle,
-  Eye,
-  ExternalLink
+  Clock,
+  XCircle
 } from "lucide-react";
 
 export default function PatientTransactions() {
@@ -27,163 +23,63 @@ export default function PatientTransactions() {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [dateFilter, setDateFilter] = useState("all");
 
   // Filter transactions for current user
   const userTransactions = mockTransactions.filter(transaction => 
-    transaction.patientId === user?.id
+    transaction.patientName === user?.name
   );
   
-  // Filter by search term
+  // Filter by search term and status
   const filteredTransactions = userTransactions.filter(transaction => {
-    const matchesSearch = 
-      transaction.service.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.doctorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.id.toLowerCase().includes(searchTerm.toLowerCase());
-    
+    const matchesSearch = transaction.service.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         transaction.doctorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         transaction.id.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "all" || transaction.status === statusFilter;
-    
-    const matchesDate = (() => {
-      if (dateFilter === "all") return true;
-      const transactionDate = new Date(transaction.timestamp);
-      const now = new Date();
-      
-      switch (dateFilter) {
-        case "today":
-          return transactionDate.toDateString() === now.toDateString();
-        case "week":
-          const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-          return transactionDate >= weekAgo;
-        case "month":
-          const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-          return transactionDate >= monthAgo;
-        case "year":
-          const yearAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
-          return transactionDate >= yearAgo;
-        default:
-          return true;
-      }
-    })();
-    
-    return matchesSearch && matchesStatus && matchesDate;
+    return matchesSearch && matchesStatus;
   });
 
-  // Calculate stats
-  const totalTransactions = userTransactions.length;
-  const totalSpent = userTransactions
-    .filter(t => t.status === 'confirmed' || t.status === 'paid')
-    .reduce((sum, t) => sum + t.amount, 0);
-  const pendingAmount = userTransactions
-    .filter(t => t.status === 'pending')
-    .reduce((sum, t) => sum + t.amount, 0);
-  const successfulTransactions = userTransactions
-    .filter(t => t.status === 'confirmed' || t.status === 'paid').length;
-
-  const stats = [
-    {
-      title: "Total Transactions",
-      value: totalTransactions.toString(),
-      icon: CreditCard,
-      description: "All time",
-      color: "text-primary"
-    },
-    {
-      title: "Total Spent",
-      value: `$${totalSpent.toLocaleString()}`,
-      icon: DollarSign,
-      description: "Successfully paid",
-      color: "text-paid"
-    },
-    {
-      title: "Pending Amount",
-      value: `$${pendingAmount.toLocaleString()}`,
-      icon: Clock,
-      description: "Awaiting confirmation",
-      color: "text-pending"
-    },
-    {
-      title: "Success Rate",
-      value: `${totalTransactions > 0 ? Math.round((successfulTransactions / totalTransactions) * 100) : 0}%`,
-      icon: CheckCircle,
-      description: "Successful payments",
-      color: "text-confirmed"
-    }
-  ];
-
-  const handleDownloadReceipt = (transaction: any) => {
+  const handleCopyHash = (hash: string) => {
+    navigator.clipboard.writeText(hash);
     toast({
-      title: "Receipt Downloaded",
-      description: `Receipt for transaction ${transaction.id} has been downloaded.`,
+      title: "Hash Copied",
+      description: "Transaction hash copied to clipboard.",
     });
-    // In a real app, this would generate and download the PDF
   };
 
-  const handleViewDetails = (transaction: any) => {
-    toast({
-      title: "Transaction Details",
-      description: `Viewing details for transaction ${transaction.id}`,
-    });
-    // In a real app, this would open a detailed view modal
+  const handleViewOnExplorer = (hash: string) => {
+    const explorerUrl = `https://suiexplorer.com/txblock/${hash}?network=testnet`;
+    window.open(explorerUrl, '_blank');
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'confirmed':
+        return <CheckCircle className="w-4 h-4 text-green-500" />;
       case 'paid':
-        return <CheckCircle className="w-4 h-4 text-paid" />;
+        return <CheckCircle className="w-4 h-4 text-green-500" />;
       case 'pending':
-        return <Clock className="w-4 h-4 text-pending" />;
-      case 'failed':
-        return <AlertCircle className="w-4 h-4 text-destructive" />;
+        return <Clock className="w-4 h-4 text-yellow-500" />;
       default:
-        return <Clock className="w-4 h-4 text-muted-foreground" />;
+        return <XCircle className="w-4 h-4 text-red-500" />;
     }
   };
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Transaction History</h1>
+          <h2 className="text-2xl font-bold">My Transactions</h2>
           <p className="text-muted-foreground">
-            View and manage all your medical payment transactions
+            View your blockchain transaction history
           </p>
         </div>
-        <Button 
-          variant="outline"
-          onClick={() => window.print()}
-          className="flex items-center gap-2"
-        >
-          <Download className="w-4 h-4" />
-          Export
-        </Button>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <Card key={index} className="medical-card transition-smooth hover:scale-105">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">{stat.title}</p>
-                  <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
-                  <p className="text-xs text-muted-foreground">{stat.description}</p>
-                </div>
-                <div className="w-12 h-12 rounded-xl bg-gradient-medical flex items-center justify-center">
-                  <stat.icon className="w-6 h-6 text-white" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
       </div>
 
       {/* Filters */}
       <Card className="medical-card">
-        <CardContent className="p-6">
-          <div className="flex flex-col sm:flex-row gap-4">
+        <CardContent className="p-4">
+          <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
@@ -195,170 +91,115 @@ export default function PatientTransactions() {
                 />
               </div>
             </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="confirmed">Confirmed</SelectItem>
-                <SelectItem value="paid">Paid</SelectItem>
-                <SelectItem value="failed">Failed</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={dateFilter} onValueChange={setDateFilter}>
-              <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="Filter by date" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Time</SelectItem>
-                <SelectItem value="today">Today</SelectItem>
-                <SelectItem value="week">This Week</SelectItem>
-                <SelectItem value="month">This Month</SelectItem>
-                <SelectItem value="year">This Year</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="w-full md:w-48">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full px-3 py-2 border border-border rounded-md bg-background"
+              >
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="paid">Paid</option>
+                <option value="confirmed">Confirmed</option>
+              </select>
+            </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Transactions List */}
-      <Card className="medical-card">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CreditCard className="w-5 h-5" />
-            Transactions
-            <Badge variant="secondary" className="ml-2">
-              {filteredTransactions.length}
-            </Badge>
-          </CardTitle>
-          <CardDescription>
-            Your medical payment transaction history
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {filteredTransactions.length > 0 ? (
-            <div className="space-y-4">
-              {filteredTransactions.map((transaction) => (
-                <div 
-                  key={transaction.id} 
-                  className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-accent/50 transition-smooth"
-                >
+      <div className="space-y-4">
+        {filteredTransactions.length > 0 ? (
+          filteredTransactions.map((transaction) => (
+            <Card key={transaction.id} className="medical-card transition-smooth hover:shadow-medical">
+              <CardContent className="p-6">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      {getStatusIcon(transaction.status)}
-                      <h4 className="font-semibold">{transaction.service}</h4>
+                      <h3 className="text-lg font-semibold">{transaction.service}</h3>
                       <StatusBadge status={transaction.status} />
+                      {getStatusIcon(transaction.status)}
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-muted-foreground">
-                      <p>Doctor: {transaction.doctorName}</p>
-                      <p>Date: {new Date(transaction.timestamp).toLocaleDateString()}</p>
-                      <p>Transaction ID: {transaction.id}</p>
-                      <p>Time: {new Date(transaction.timestamp).toLocaleTimeString()}</p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-2">
+                        <CreditCard className="w-4 h-4" />
+                        Transaction ID: {transaction.id}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        {new Date(transaction.timestamp).toLocaleDateString()}
+                      </div>
+                      <div>
+                        Doctor: {transaction.doctorName}
+                      </div>
+                      <div>
+                        Invoice: {transaction.invoiceId}
+                      </div>
                     </div>
-                    {transaction.notes && (
-                      <p className="text-sm text-muted-foreground mt-2 italic">
-                        Note: {transaction.notes}
-                      </p>
+
+                    {/* Blockchain Information */}
+                    {transaction.blockchainHash && (
+                      <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium">Blockchain Hash</span>
+                          <div className="flex gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleCopyHash(transaction.blockchainHash!)}
+                              className="h-6 w-6 p-0"
+                            >
+                              <Copy className="w-3 h-3" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleViewOnExplorer(transaction.blockchainHash!)}
+                              className="h-6 w-6 p-0"
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </div>
+                        <code className="text-xs text-muted-foreground break-all">
+                          {transaction.blockchainHash}
+                        </code>
+                        {transaction.proofOfStake && (
+                          <div className="mt-2">
+                            <span className="text-xs text-muted-foreground">PoS Proof: </span>
+                            <code className="text-xs text-muted-foreground">
+                              {transaction.proofOfStake}
+                            </code>
+                          </div>
+                        )}
+                      </div>
                     )}
                   </div>
-                  <div className="text-right space-y-2">
-                    <p className="font-bold text-lg">${transaction.amount}</p>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleViewDetails(transaction)}
-                        className="flex items-center gap-1"
-                      >
-                        <Eye className="w-3 h-3" />
-                        Details
-                      </Button>
-                      {(transaction.status === 'confirmed' || transaction.status === 'paid') && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDownloadReceipt(transaction)}
-                          className="flex items-center gap-1"
-                        >
-                          <Download className="w-3 h-3" />
-                          Receipt
-                        </Button>
-                      )}
-                    </div>
+
+                  <div className="text-right">
+                    <p className="text-2xl font-bold text-primary">${transaction.amount}</p>
+                    <p className="text-sm text-muted-foreground">Amount</p>
                   </div>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <CreditCard className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No transactions found</h3>
-              <p className="text-muted-foreground mb-4">
-                {searchTerm || statusFilter !== "all" || dateFilter !== "all" 
-                  ? "Try adjusting your search filters"
-                  : "Your transaction history will appear here"
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <Card className="medical-card">
+            <CardContent className="p-12 text-center">
+              <CreditCard className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium mb-2">No transactions found</h3>
+              <p className="text-muted-foreground">
+                {searchTerm || statusFilter !== "all" 
+                  ? "Try adjusting your search or filter criteria."
+                  : "Your transaction history will appear here once you make payments."
                 }
               </p>
-              {(searchTerm || statusFilter !== "all" || dateFilter !== "all") && (
-                <Button 
-                  variant="outline"
-                  onClick={() => {
-                    setSearchTerm("");
-                    setStatusFilter("all");
-                    setDateFilter("all");
-                  }}
-                >
-                  Clear Filters
-                </Button>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Transaction Summary */}
-      {filteredTransactions.length > 0 && (
-        <Card className="medical-card">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="w-5 h-5" />
-              Summary
-            </CardTitle>
-            <CardDescription>
-              Overview of filtered transactions
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center p-4 rounded-lg bg-primary/10">
-                <p className="text-2xl font-bold text-primary">
-                  {filteredTransactions.length}
-                </p>
-                <p className="text-sm text-muted-foreground">Total Transactions</p>
-              </div>
-              <div className="text-center p-4 rounded-lg bg-paid/10">
-                <p className="text-2xl font-bold text-paid">
-                  ${filteredTransactions
-                    .filter(t => t.status === 'confirmed' || t.status === 'paid')
-                    .reduce((sum, t) => sum + t.amount, 0)
-                    .toLocaleString()}
-                </p>
-                <p className="text-sm text-muted-foreground">Total Amount</p>
-              </div>
-              <div className="text-center p-4 rounded-lg bg-confirmed/10">
-                <p className="text-2xl font-bold text-confirmed">
-                  {filteredTransactions.length > 0 ? 
-                    Math.round((filteredTransactions.filter(t => t.status === 'confirmed' || t.status === 'paid').length / filteredTransactions.length) * 100) : 0}%
-                </p>
-                <p className="text-sm text-muted-foreground">Success Rate</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }
-
