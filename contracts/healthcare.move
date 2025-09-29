@@ -84,6 +84,18 @@ module healthcare::healthcare {
         blockchain_hash: String,
     }
 
+    // Product object
+    struct Product has key, store {
+        id: UID,
+        product_id: String,
+        name: String,
+        description: String,
+        quantity: u64,
+        price: u64,
+        institution_id: String,
+        created_at: u64,
+    }
+
     // Capability for creating invoices (only institutions can create)
     struct InvoiceCapability has key {
         id: UID,
@@ -103,6 +115,17 @@ module healthcare::healthcare {
     }
 
     // Events
+    struct ProductAdded has copy, drop {
+        product_id: String,
+        name: String,
+        institution_id: String,
+    }
+
+    struct ProductUpdated has copy, drop {
+        product_id: String,
+        name: String,
+        institution_id: String,
+    }
     struct InvoiceCreated has copy, drop {
         invoice_id: String,
         patient_id: String,
@@ -133,7 +156,74 @@ module healthcare::healthcare {
         // In a real implementation, you might want to create some initial capabilities
     }
 
-    // Create an invoice (only institutions with capability can call)
+    // Add a product (only institutions with capability can call)
+    public entry fun add_product(
+        capability: &InvoiceCapability,
+        name: String,
+        description: String,
+        quantity: u64,
+        price: u64,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ) {
+        assert!(quantity > 0, EInvalidAmount);
+        assert!(price > 0, EInvalidAmount);
+        let product_id = string::utf8(b"PROD-");
+        let product_id = string::append(&mut product_id, string::utf8(b"001")); // In real implementation, generate unique ID
+        let product = Product {
+            id: object::new(ctx),
+            product_id,
+            name: name.clone(),
+            description,
+            quantity,
+            price,
+            institution_id: capability.institution_id.clone(),
+            created_at: clock::timestamp_ms(clock),
+        };
+        event::emit(ProductAdded {
+            product_id: product.product_id.clone(),
+            name: product.name.clone(),
+            institution_id: product.institution_id.clone(),
+        });
+        transfer::transfer(product, tx_context::sender(ctx));
+    }
+
+    // Update a product (only institutions with capability can call)
+    public entry fun update_product(
+        capability: &InvoiceCapability,
+        product: &mut Product,
+        name: String,
+        description: String,
+        quantity: u64,
+        price: u64,
+        ctx: &mut TxContext
+    ) {
+        assert!(product.institution_id == capability.institution_id, ENotAuthorized);
+        assert!(quantity > 0, EInvalidAmount);
+        assert!(price > 0, EInvalidAmount);
+        product.name = name.clone();
+        product.description = description;
+        product.quantity = quantity;
+        product.price = price;
+        event::emit(ProductUpdated {
+            product_id: product.product_id.clone(),
+            name: product.name.clone(),
+            institution_id: product.institution_id.clone(),
+        });
+    }
+
+    // Get product details
+    public fun get_product(product: &Product): (String, String, String, u64, u64) {
+        (
+            product.product_id,
+            product.name,
+            product.description,
+            product.quantity,
+            product.price
+        )
+    }
+
+    // ...existing code...
     public entry fun create_invoice(
         capability: &InvoiceCapability,
         patient_id: String,

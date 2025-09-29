@@ -1,3 +1,18 @@
+// Sui blockchain interaction helpers for Patient and Insurance dashboards
+import { SuiClient } from '@mysten/sui.js';
+
+export async function getMedicalRecord(client, recordId) {
+  // Replace with actual logic to fetch Move object
+  return client.getObject({ id: recordId });
+}
+
+export async function getPrescription(client, prescriptionId) {
+  return client.getObject({ id: prescriptionId });
+}
+
+export async function getTransaction(client, transactionId) {
+  return client.getObject({ id: transactionId });
+}
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
