@@ -22,14 +22,14 @@ export const suiClient = new SuiClient({
 // Healthcare smart contract configuration
 export const HEALTHCARE_CONTRACT = {
   // This would be the actual package ID after deployment
-  PACKAGE_ID: '0x0', // Replace with actual package ID after deployment
+  PACKAGE_ID: '0xdd1695d238e5655c2452962b0611d1472e9c390635c6cf8d412e1c8eee344970', // Replace with actual package ID after deployment
   MODULE_NAME: 'healthcare',
   
   // Object types
-  INVOICE_OBJECT_TYPE: '0x0::healthcare::Invoice',
-  TRANSACTION_OBJECT_TYPE: '0x0::healthcare::Transaction',
-  MEDICAL_RECORD_OBJECT_TYPE: '0x0::healthcare::MedicalRecord',
-  PRESCRIPTION_OBJECT_TYPE: '0x0::healthcare::Prescription',
+  INVOICE_OBJECT_TYPE: '0xdd1695d238e5655c2452962b0611d1472e9c390635c6cf8d412e1c8eee344970::healthcare::Invoice',
+  TRANSACTION_OBJECT_TYPE: '0xdd1695d238e5655c2452962b0611d1472e9c390635c6cf8d412e1c8eee344970::healthcare::Transaction',
+  MEDICAL_RECORD_OBJECT_TYPE: '0xdd1695d238e5655c2452962b0611d1472e9c390635c6cf8d412e1c8eee344970::healthcare::MedicalRecord',
+  PRESCRIPTION_OBJECT_TYPE: '0xdd1695d238e5655c2452962b0611d1472e9c390635c6cf8d412e1c8eee344970::healthcare::Prescription',
   
   // Function names
   FUNCTIONS: {
